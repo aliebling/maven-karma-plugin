@@ -33,7 +33,7 @@ Full Example:
 <plugin>
     <groupId>com.github.aliebling</groupId>
     <artifactId>maven-karma-plugin</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
     <executions>
         <execution>
             <phase>test</phase>
