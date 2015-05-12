@@ -61,8 +61,25 @@ public class StartMojo extends AbstractMojo {
     private static final String KARMA_JUNIT_REPORTER_PLUGIN = "karma-junit-reporter";
 
     /**
+     * Name of the Junit reporter for the Karma configuration reporters array
+     *
+     * @see <a href="https://github.com/matthias-schuetz/karma-htmlfile-reporter">https://github.com/matthias-schuetz/karma-htmlfile-reporter</a>}
+     */
+    private static final String KARMA_HTMLFILE_REPORTER = "html";
+
+    /**
+     * Name of the Junit reporter plugin for the Karma configuration plugins array
+     *
+     * @see <a href="https://github.com/matthias-schuetz/karma-htmlfile-reporter">https://github.com/matthias-schuetz/karma-htmlfile-reporter</a>}
+     */
+    private static final String KARMA_HTMLFILE_REPORTER_PLUGIN = "karma-htmlfile-reporter";
+
+    String reporterName = KARMA_JUNIT_REPORTER;
+    String reporterPluginName = KARMA_JUNIT_REPORTER_PLUGIN;
+
+    /**
      * Base directory where all Karma reports are written to. This occurs in the post execution step where the file
-     * specified in the junitReportFile is copied to this directory.
+     * specified in the reportFile is copied to this directory.
      */
     @Parameter(defaultValue = "${project.build.directory}/karma-reports", required = false)
     private File reportsDirectory;
@@ -74,13 +91,22 @@ public class StartMojo extends AbstractMojo {
     private File configFile;
 
     /**
-     * Karma-junit-reporter results file. Setting this location will export the results file to the specified reportsDirectory. For this
-     * to function, the karma-junit-reporter plugin must be included in the karma configuration file and the reportsDirectory
-     * must be available for writing. The junit reporter plugin's outputFile property should also be configured in karma.conf.js to
-     * be pointing to the same directory as this property, ensuring that the file is picked up.
+     * Karma-junit-reporter/ karma-htmlfile-reporter results file. Setting this location will export the results file to the specified
+     * reportsDirectory.  The reporter plugin's outputFile property should also be configured in karma.conf.js to
+     * be pointing to the same directory as this property, ensuring that the file is picked up.  For this
+     * to function, the corresponding plugin must be included in the karma configuration file and the reportsDirectory
+     * must be available for writing.  Note that if the useKarmaHtmlfileReporter parameter is true, then the
+     * karma-htmlfile-reporter will be used instead of the karma-junit-reporter
      */
-    @Parameter(property = "junitReportFile", required = false)
-    private File junitReportFile;
+    @Parameter(property = "reportFile", required = false)
+    private File reportFile;
+
+    /**
+     * Indicates that karma-htmlfile-reporter is being used instead of karma-junit-reporter.  Use the reportFile parameter
+     * to indicate the location of the results file
+     */
+    @Parameter(property = "useKarmaHtmlfileReporter", required = false)
+    private boolean useKarmaHtmlfileReporter;
 
     /**
      * Path to the working directory.  The working directory should be where node_modules is installed.
@@ -207,20 +233,25 @@ public class StartMojo extends AbstractMojo {
             throw new MojoFailureException("Cannot write to the supplied reporting directory " + reportsDirectory.getAbsolutePath());
         }
 
-        if (junitReportFile != null) {
-            getLog().info("Enabling Karma's junit reporter plugin (" + KARMA_JUNIT_REPORTER_PLUGIN + ")");
-
-            // Ensure that the junit reporter is executed
-            if (reporters == null) {
-                if (!karmaConfiguration.contains("'" + KARMA_JUNIT_REPORTER + "'")) {
-                    reporters = KARMA_JUNIT_REPORTER;
-                }
-            } else if (!reporters.contains(KARMA_JUNIT_REPORTER)) {
-                reporters += "," + KARMA_JUNIT_REPORTER;
+        if (reportFile != null) {
+            if (useKarmaHtmlfileReporter) {
+                reporterName = KARMA_HTMLFILE_REPORTER;
+                reporterPluginName = KARMA_HTMLFILE_REPORTER_PLUGIN;
             }
 
-            if (!karmaConfiguration.contains("'" + KARMA_JUNIT_REPORTER_PLUGIN + "'")) {
-                getLog().warn("Could not find the " + KARMA_JUNIT_REPORTER_PLUGIN + " plugin in the supplied configuration file. Test results may be unavailable or incorrect!");
+            getLog().info("Enabling Karma's reporter plugin (" + reporterName + ")");
+
+            // Ensure that the reporter is executed
+            if (reporters == null) {
+                if (!karmaConfiguration.contains("'" + reporterName + "'")) {
+                    reporters = reporterName;
+                }
+            } else if (!reporters.contains(reporterName)) {
+                reporters += "," + reporterName;
+            }
+
+            if (!karmaConfiguration.contains("'" + reporterPluginName + "'")) {
+                getLog().warn("Could not find the " + reporterPluginName + " plugin in the supplied configuration file. Test results may be unavailable or incorrect!");
             }
         }
 
@@ -296,15 +327,15 @@ public class StartMojo extends AbstractMojo {
     }
 
     private void postExecution() {
-        if (junitReportFile != null) {
+        if (reportFile != null) {
 
-            if (!junitReportFile.exists() || !junitReportFile.isFile()) {
-                getLog().warn("Karma's junit reporter was enabled but no results were found at " + junitReportFile.getAbsolutePath() + ". Is the reporter plugin (" + KARMA_JUNIT_REPORTER_PLUGIN + ") installed correctly and enabled in the Karma configuration file?");
+            if (!reportFile.exists() || !reportFile.isFile()) {
+                getLog().warn("Karma's " + reporterName + "reporter was enabled but no results were found at " + reportFile.getAbsolutePath() + ". Is the reporter plugin (" + reporterPluginName + ") installed correctly and enabled in the Karma configuration file?");
             } else {
                 try {
-                    FileUtils.copyFile(junitReportFile, new File(reportsDirectory, junitReportFile.getName()));
+                    FileUtils.copyFile(reportFile, new File(reportsDirectory, reportFile.getName()));
                 } catch (IOException e) {
-                    getLog().warn("Could not copy Karma's junit report to " + reportsDirectory.getAbsolutePath());
+                    getLog().warn("Could not copy Karma's " + reporterName + " report to " + reportsDirectory.getAbsolutePath());
                 }
             }
 

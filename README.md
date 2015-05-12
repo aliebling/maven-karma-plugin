@@ -45,7 +45,7 @@ Full Example:
     <configuration>
         <karmaExecutable>${basedir}/node_modules/.bin/karma</karmaExecutable>        
         <configFile>src/main/webapp/resources/karma-0.10.2.conf.js</configFile>
-        <junitReportFile>src/main/webapp/resources/test-results.xml</junitReportFile>
+        <reportFile>src/main/webapp/resources/test-results.xml</reportFile>
         <reportsDirectory>${project.build.directory}/karma-reports</reportsDirectory>
         <browsers>PhantomJS</browsers>
         <autoWatch>false</autoWatch>
