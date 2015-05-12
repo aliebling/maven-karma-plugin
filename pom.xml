@@ -4,7 +4,7 @@
 
     <groupId>com.github.aliebling</groupId>
     <artifactId>maven-karma-plugin</artifactId>
-    <version>maven-karma-plugin-2.0</version>
+    <version>maven-karma-plugin-2.0.1</version>
     <packaging>maven-plugin</packaging>
 
     <name>Karma Maven Plugin</name>
