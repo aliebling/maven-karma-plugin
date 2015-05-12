@@ -11,9 +11,9 @@ Example of a typical usage:
 
 ```xml
 <plugin>
-    <groupId>com.kelveden</groupId>
+    <groupId>com.github.aliebling</groupId>
     <artifactId>maven-karma-plugin</artifactId>
-    <version>1.6</version>
+    <version>2.0.2</version>
     <executions>
         <execution>
             <goals>
