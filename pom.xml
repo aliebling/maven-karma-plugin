@@ -64,11 +64,6 @@
             <artifactId>jansi</artifactId>
             <version>1.11</version>
         </dependency>
-        <dependency>
-            <groupId>com.github.aliebling</groupId>
-            <artifactId>maven-karma-plugin</artifactId>
-            <version>maven-karma-plugin-2.0</version>
-        </dependency>
     </dependencies>
 
     <build>
